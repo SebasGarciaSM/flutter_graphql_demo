@@ -1,34 +1,36 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_graphql_demo/countries_page.dart';
+import 'package:flutter_graphql_demo/data/repositories/country_repository_impl.dart';
+import 'package:flutter_graphql_demo/domain/usecases/get_countries_usecase.dart';
+import 'package:flutter_graphql_demo/presentation/pages/countries_page.dart';
+import 'package:flutter_graphql_demo/presentation/viewmodels/countries_viewmodel.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
+import 'package:provider/provider.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   await initHiveForFlutter();
 
-  final HttpLink httpLink = HttpLink('https://countries.trevorblades.com/');
+  final repo = CountryRepositoryImpl();
+  final useCase = GetCountriesUsecase(repo);
+  final vm = CountriesViewmodel(useCase);
 
-  ValueNotifier<GraphQLClient> client = ValueNotifier(
-    GraphQLClient(
-      link: httpLink,
-      cache: GraphQLCache(store: HiveStore()),
-    ),
-  );
-
-  runApp(MainApp(client: client));
+  runApp(MainApp(viewmodel: vm));
 }
 
 class MainApp extends StatelessWidget {
-  final ValueNotifier<GraphQLClient> client;
-  const MainApp({super.key, required this.client});
+  final CountriesViewmodel viewmodel;
+  const MainApp({super.key, required this.viewmodel});
 
   @override
   Widget build(BuildContext context) {
-    return GraphQLProvider(
-      client: client,
-      child: const MaterialApp(
-        home: CountriesPage(),
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) => viewmodel),
+      ],
+      child: MaterialApp(
+        title: 'GraphQL Demo',
+        home: const CountriesPage(),
       ),
     );
   }
