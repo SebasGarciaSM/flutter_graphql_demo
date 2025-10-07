@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_graphql_demo/data/repositories/country_repository_impl.dart';
+import 'package:flutter_graphql_demo/domain/repositories/country_repository.dart';
 import 'package:flutter_graphql_demo/domain/usecases/get_countries_usecase.dart';
 import 'package:flutter_graphql_demo/presentation/pages/countries_page.dart';
 import 'package:flutter_graphql_demo/presentation/viewmodels/countries_viewmodel.dart';
@@ -11,22 +12,30 @@ void main() async {
 
   await initHiveForFlutter();
 
-  final repo = CountryRepositoryImpl();
-  final useCase = GetCountriesUsecase(repo);
-  final vm = CountriesViewmodel(useCase);
-
-  runApp(MainApp(viewmodel: vm));
+  runApp(MainApp());
 }
 
 class MainApp extends StatelessWidget {
-  final CountriesViewmodel viewmodel;
-  const MainApp({super.key, required this.viewmodel});
+  const MainApp({super.key});
 
   @override
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: [
-        ChangeNotifierProvider(create: (_) => viewmodel),
+        // Repository (data)
+        Provider<CountryRepositoryImpl>(create: (_) => CountryRepositoryImpl()),
+
+        // UseCase (domain) depends on Repository
+        Provider(
+          create: (context) =>
+              GetCountriesUsecase(context.read<CountryRepositoryImpl>()),
+        ),
+
+        // ViewModel (presentation) depends on UseCase
+        ChangeNotifierProvider(
+          create: (context) =>
+              CountriesViewmodel(context.read<GetCountriesUsecase>()),
+        ),
       ],
       child: MaterialApp(
         title: 'GraphQL Demo',

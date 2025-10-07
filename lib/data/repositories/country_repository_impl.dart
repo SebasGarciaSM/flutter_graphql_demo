@@ -1,5 +1,3 @@
-import 'dart:convert';
-
 import 'package:flutter_graphql_demo/data/models/country_model.dart';
 import 'package:flutter_graphql_demo/data/services/graphql_service.dart';
 import 'package:flutter_graphql_demo/domain/entities/country_entity.dart';
