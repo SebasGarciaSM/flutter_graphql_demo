@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_graphql_demo/data/repositories/country_repository_impl.dart';
-import 'package:flutter_graphql_demo/domain/repositories/country_repository.dart';
 import 'package:flutter_graphql_demo/domain/usecases/get_countries_usecase.dart';
 import 'package:flutter_graphql_demo/presentation/pages/countries_page.dart';
 import 'package:flutter_graphql_demo/presentation/viewmodels/countries_viewmodel.dart';

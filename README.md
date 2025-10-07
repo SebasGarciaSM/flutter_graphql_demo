@@ -105,3 +105,49 @@ If you need to run on a specific platform (iOS/Android/web), use `-d` with the a
 - Add widget tests for the `CountriesPage` using mocked ViewModels.
 - Improve DI (use `get_it` or similar) for easier testing and decoupling.
 - Add environment configuration for GraphQL endpoint and auth (secrets management).
+
+## Testing
+
+This project includes unit tests for the presentation/viewmodel layer located under `test/presentation/viewmodels`. The test suite uses the following tools:
+
+- `flutter_test` — the default Flutter test framework (already included via `dev_dependencies`).
+- `mockito` — for generating and using mocks of repository/service interfaces.
+- `build_runner` — to generate Mockito mock classes (the generated files live under `test/mocks`).
+
+What was added in `test/`:
+
+- `test/presentation/viewmodels/countries_view_model_test.dart` — tests for the `CountriesViewModel` behavior.
+- `test/mocks/mocks.dart` and generated `test/mocks/mocks.mocks.dart` — mock interfaces and generated mock implementations used by the tests.
+
+How the tests work (high level):
+
+1. The `CountriesViewModel` is tested in isolation. Dependencies such as the `CountryRepository` are replaced by Mockito-generated mock implementations.
+2. Tests arrange (set up) mock responses from the repository/service, exercise the ViewModel (for example by calling a `load()` method), and assert expected ViewModel state transitions (loading → success/error) and data mapping.
+
+How to run tests and generate mocks
+
+1. Get packages (if you haven't already):
+
+```bash
+flutter pub get
+```
+
+2. Generate mock files (run this whenever you update mock annotations):
+
+```bash
+flutter pub run build_runner build --delete-conflicting-outputs
+```
+
+This will produce the `test/mocks/mocks.mocks.dart` file that the tests import.
+
+3. Run the test suite:
+
+```bash
+flutter test
+```
+
+Tips and notes
+
+- Keep mocks small: mock only the methods you need for each test to avoid brittle tests.
+- If you prefer faster iteration, run a single test file with `flutter test test/presentation/viewmodels/countries_view_model_test.dart`.
+- Use `--coverage` or test reporters if you want coverage reports or CI integration.
